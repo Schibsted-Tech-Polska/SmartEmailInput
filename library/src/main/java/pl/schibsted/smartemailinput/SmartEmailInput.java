@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
+import android.text.InputType;
 import android.util.AttributeSet;
 
 import java.util.ArrayList;
@@ -46,6 +47,8 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
     }
 
     private void init(Context context) {
+        setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+
         presenter = new EmailInputPresenter(this, EmailInputMvp.RepositoryProvider.provideRepository(getContext()));
 
         boolean permissionRequired = ContextCompat.checkSelfPermission(context, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED;
