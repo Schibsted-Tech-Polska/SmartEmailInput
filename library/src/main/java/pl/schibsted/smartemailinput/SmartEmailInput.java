@@ -14,10 +14,13 @@ import android.util.AttributeSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import pl.schibsted.smartemailinput.sample.R;
+
+
 /**
  * Created by Jacek Kwiecień on 09.06.16.
  */
-public class SmartEmailInput extends AppCompatAutoCompleteTextView implements EmailInputMvp.View {
+public class SmartEmailInput extends AppCompatAutoCompleteTextView implements EmailInputMvp.View, EmailInputMvp.RationaleProvider {
 
     public interface ActivityProvider {
         Activity provideActivity();
@@ -25,7 +28,7 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
 
     private EmailInputMvp.Presenter presenter;
     private ActivityProvider activityProvider;
-    private String currentText;
+    private String rationaleMessage;
 
     public SmartEmailInput(Context context) {
         super(context);
@@ -48,6 +51,7 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
 
     private void init(Context context) {
         setInputType(InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS);
+        rationaleMessage = getContext().getString(R.string.permission_rationale);
 
         presenter = new EmailInputPresenter(this, EmailInputMvp.RepositoryProvider.provideRepository(getContext()));
 
@@ -55,7 +59,7 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
         List<EmailAccount> accounts = new ArrayList<>();
         if (permissionRequired) {
             accounts.add(EmailAccount.rationaleDummy());
-            setAdapter(new EmailAdapter(getContext(), presenter, accounts, permissionRequired));
+            setAdapter(new EmailAdapter(getContext(), presenter, this, accounts, permissionRequired));
         } else {
             presenter.loadAccounts();
         }
@@ -87,12 +91,21 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
 
     @Override
     public void onAccountsLoaded(List<EmailAccount> accounts) {
-        setAdapter(new EmailAdapter(getContext(), presenter, accounts, false));
+        setAdapter(new EmailAdapter(getContext(), presenter, this, accounts, false));
     }
 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         activityProvider = null;
+    }
+
+    @Override
+    public String provideRationaleMessage() {
+        return rationaleMessage;
+    }
+
+    public void setRationaleMessage(String rationaleMessage) {
+        this.rationaleMessage = rationaleMessage;
     }
 }

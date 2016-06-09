@@ -22,14 +22,16 @@ public class EmailAdapter extends ArrayAdapter<EmailAccount> {
     private final int TYPE_RATIONALE = 1;
 
     private EmailInputMvp.Presenter presenter;
+    private EmailInputMvp.RationaleProvider rationaleProvider;
     private List<EmailAccount> allAccounts;
     private List<EmailAccount> originalAccounts;
     private AccountFilter filter;
     private boolean permissionRequired = false;
 
-    public EmailAdapter(Context context, EmailInputMvp.Presenter presenter, List<EmailAccount> accounts, boolean permissionRequired) {
+    public EmailAdapter(Context context, EmailInputMvp.Presenter presenter, EmailInputMvp.RationaleProvider rationaleProvider, List<EmailAccount> accounts, boolean permissionRequired) {
         super(context, android.R.layout.simple_dropdown_item_1line, accounts);
         this.presenter = presenter;
+        this.rationaleProvider = rationaleProvider;
         this.allAccounts = accounts;
         this.originalAccounts = new ArrayList<>(accounts);
         this.permissionRequired = permissionRequired;
@@ -64,10 +66,8 @@ public class EmailAdapter extends ArrayAdapter<EmailAccount> {
             holder = (ViewHolder) row.getTag();
         }
 
-        if (!permissionRequired) {
-            EmailAccount account = getItem(position);
-            ((AccountViewHolder) holder).label.setText(account.email);
-        }
+        EmailAccount account = getItem(position);
+        holder.bind(account);
 
         return row;
     }
@@ -84,6 +84,8 @@ public class EmailAdapter extends ArrayAdapter<EmailAccount> {
     }
 
     private static abstract class ViewHolder {
+
+        public abstract void bind(EmailAccount account);
     }
 
     private static class AccountViewHolder extends ViewHolder {
@@ -92,20 +94,33 @@ public class EmailAdapter extends ArrayAdapter<EmailAccount> {
         public AccountViewHolder(View view) {
             label = (TextView) view.findViewById(android.R.id.text1);
         }
+
+        @Override
+        public void bind(EmailAccount account) {
+            label.setText(account.email);
+        }
     }
 
     private class RationaleViewHolder extends ViewHolder {
 
         public View view;
+        public TextView label;
 
         public RationaleViewHolder(View view) {
             this.view = view;
+            this.label = (TextView) view.findViewById(R.id.label);
+
             this.view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     presenter.requestAccountsPermission();
                 }
             });
+        }
+
+        @Override
+        public void bind(EmailAccount account) {
+            label.setText(rationaleProvider.provideRationaleMessage());
         }
     }
 

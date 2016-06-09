@@ -48,4 +48,8 @@ public interface EmailInputMvp {
     interface Repository {
         List<EmailAccount> getAccounts();
     }
+
+    interface RationaleProvider {
+        String provideRationaleMessage();
+    }
 }
