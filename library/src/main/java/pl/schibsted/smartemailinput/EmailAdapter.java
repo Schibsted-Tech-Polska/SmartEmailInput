@@ -21,13 +21,15 @@ public class EmailAdapter extends ArrayAdapter<EmailAccount> {
     private final int TYPE_ACCOUNT = 0;
     private final int TYPE_RATIONALE = 1;
 
+    private EmailInputMvp.Presenter presenter;
     private List<EmailAccount> allAccounts;
     private List<EmailAccount> originalAccounts;
     private AccountFilter filter;
     private boolean permissionRequired = false;
 
-    public EmailAdapter(Context context, List<EmailAccount> accounts, boolean permissionRequired) {
+    public EmailAdapter(Context context, EmailInputMvp.Presenter presenter, List<EmailAccount> accounts, boolean permissionRequired) {
         super(context, android.R.layout.simple_dropdown_item_1line, accounts);
+        this.presenter = presenter;
         this.allAccounts = accounts;
         this.originalAccounts = new ArrayList<>(accounts);
         this.permissionRequired = permissionRequired;
@@ -35,8 +37,7 @@ public class EmailAdapter extends ArrayAdapter<EmailAccount> {
 
     @Override
     public int getCount() {
-        int count = permissionRequired ? 1 : allAccounts.size();
-        return count;
+        return permissionRequired ? 1 : allAccounts.size();
     }
 
     @Override
@@ -57,7 +58,7 @@ public class EmailAdapter extends ArrayAdapter<EmailAccount> {
             LayoutInflater inflater = LayoutInflater.from(getContext());
             int layout = permissionRequired ? R.layout.view_permission_rationale : android.R.layout.simple_dropdown_item_1line;
             row = inflater.inflate(layout, parent, false);
-            holder = permissionRequired ? new RationaleViewHolder() : new AccountViewHolder(row);
+            holder = permissionRequired ? new RationaleViewHolder(row) : new AccountViewHolder(row);
             row.setTag(holder);
         } else {
             holder = (ViewHolder) row.getTag();
@@ -93,7 +94,19 @@ public class EmailAdapter extends ArrayAdapter<EmailAccount> {
         }
     }
 
-    private static class RationaleViewHolder extends ViewHolder {
+    private class RationaleViewHolder extends ViewHolder {
+
+        public View view;
+
+        public RationaleViewHolder(View view) {
+            this.view = view;
+            this.view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    presenter.requestAccountsPermission();
+                }
+            });
+        }
     }
 
 

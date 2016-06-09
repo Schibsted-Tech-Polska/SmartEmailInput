@@ -31,6 +31,8 @@ public interface EmailInputMvp {
         void onPermissionDenied();
 
         void requestAccountsPermission();
+
+        void loadAccounts();
     }
 
     interface View {

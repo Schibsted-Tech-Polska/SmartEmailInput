@@ -30,4 +30,10 @@ public class EmailInputPresenter implements EmailInputMvp.Presenter {
     public void requestAccountsPermission() {
         view.onAccountsPermissionRequested();
     }
+
+    @Override
+    public void loadAccounts() {
+        List<EmailAccount> accounts = repository.getAccounts();
+        view.onAccountsLoaded(accounts);
+    }
 }

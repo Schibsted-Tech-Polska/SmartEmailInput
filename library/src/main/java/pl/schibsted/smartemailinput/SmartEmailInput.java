@@ -9,8 +9,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.util.AttributeSet;
-import android.view.View;
-import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +24,7 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
 
     private EmailInputMvp.Presenter presenter;
     private ActivityProvider activityProvider;
+    private String currentText;
 
     public SmartEmailInput(Context context) {
         super(context);
@@ -51,23 +50,12 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
 
         boolean permissionRequired = ContextCompat.checkSelfPermission(context, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED;
         List<EmailAccount> accounts = new ArrayList<>();
-        if (permissionRequired) accounts.add(EmailAccount.rationaleDummy());
-        setAdapter(new EmailAdapter(getContext(), accounts, permissionRequired));
-        setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                EmailAccount account = (EmailAccount) parent.getAdapter().getItem(position);
-                if (activityProvider == null) {
-                    throw new NullPointerException("You should call setActivityProvider before using the view");
-                }
-                if (account.rationale) {
-                    presenter.requestAccountsPermission();
-                    setText(getText().toString());
-                } else {
-                    setText(account.email);
-                }
-            }
-        });
+        if (permissionRequired) {
+            accounts.add(EmailAccount.rationaleDummy());
+            setAdapter(new EmailAdapter(getContext(), presenter, accounts, permissionRequired));
+        } else {
+            presenter.loadAccounts();
+        }
     }
 
     @Override
@@ -96,7 +84,7 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
 
     @Override
     public void onAccountsLoaded(List<EmailAccount> accounts) {
-        setAdapter(new EmailAdapter(getContext(), accounts, false));
+        setAdapter(new EmailAdapter(getContext(), presenter, accounts, false));
     }
 
     @Override
