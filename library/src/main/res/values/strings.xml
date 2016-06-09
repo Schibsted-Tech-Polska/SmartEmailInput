@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Smart Email Input</string>
+    <string name="permission_rationale">Grant necessary permission for autocomplete</string>
+</resources>

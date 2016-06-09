@@ -1,0 +1,107 @@
+package pl.schibsted.smartemailinput;
+
+import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatAutoCompleteTextView;
+import android.util.AttributeSet;
+import android.view.View;
+import android.widget.AdapterView;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by Jacek Kwiecień on 09.06.16.
+ */
+public class SmartEmailInput extends AppCompatAutoCompleteTextView implements EmailInputMvp.View {
+
+    public interface ActivityProvider {
+        Activity provideActivity();
+    }
+
+    private EmailInputMvp.Presenter presenter;
+    private ActivityProvider activityProvider;
+
+    public SmartEmailInput(Context context) {
+        super(context);
+        init(context);
+    }
+
+    public SmartEmailInput(Context context, AttributeSet attrs) {
+        super(context, attrs);
+        init(context);
+    }
+
+    public SmartEmailInput(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
+        init(context);
+    }
+
+    public void setActivityProvider(ActivityProvider provider) {
+        this.activityProvider = provider;
+    }
+
+    private void init(Context context) {
+        presenter = new EmailInputPresenter(this, EmailInputMvp.RepositoryProvider.provideRepository(getContext()));
+
+        boolean permissionRequired = ContextCompat.checkSelfPermission(context, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED;
+        List<EmailAccount> accounts = new ArrayList<>();
+        if (permissionRequired) accounts.add(EmailAccount.rationaleDummy());
+        setAdapter(new EmailAdapter(getContext(), accounts, permissionRequired));
+        setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                EmailAccount account = (EmailAccount) parent.getAdapter().getItem(position);
+                if (activityProvider == null) {
+                    throw new NullPointerException("You should call setActivityProvider before using the view");
+                }
+                if (account.rationale) {
+                    presenter.requestAccountsPermission();
+                    setText(getText().toString());
+                } else {
+                    setText(account.email);
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onAccountsPermissionRequested() {
+        ActivityCompat.requestPermissions(activityProvider.provideActivity(), new String[]{Manifest.permission.GET_ACCOUNTS}, RequestCodes.GET_ACCOUNTS_PERMISSION);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case RequestCodes.GET_ACCOUNTS_PERMISSION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    presenter.onAccountsPermissionGranted();
+                } else {
+                    presenter.onPermissionDenied();
+                }
+            }
+            break;
+        }
+    }
+
+    @Override
+    public void onPermissionDenied() {
+
+    }
+
+    @Override
+    public void onAccountsLoaded(List<EmailAccount> accounts) {
+        setAdapter(new EmailAdapter(getContext(), accounts, false));
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        activityProvider = null;
+    }
+}
