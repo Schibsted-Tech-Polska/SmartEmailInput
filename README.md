@@ -5,7 +5,7 @@ It's AutoompleteTextView on steroids that handles device accounts querrying - ve
 
 ####Just add the view in your layout:
 
-```
+```xml
 <pl.schibsted.smartemailinput.SmartEmailInput
   android:id="@+id/email_input"
   android:layout_width="match_parent"
@@ -15,7 +15,7 @@ It's AutoompleteTextView on steroids that handles device accounts querrying - ve
   
 ####Setup the input: 
 
-```
+```java
 public class MainActivity extends AppCompatActivity {
 
     private SmartEmailInput emailInput;
@@ -49,3 +49,15 @@ public class MainActivity extends AppCompatActivity {
 
 #### Give the app GET_ACCOUNTS permission for pre-Marshmallow devices.
 ```<uses-permission android:name="android.permission.GET_ACCOUNTS" />```
+
+
+##Gradle dependency
+```groovy
+repositories {
+    maven { url "https://jitpack.io" }
+}
+    
+dependencies {
+    compile 'com.github.Schibsted-Tech-Polska:SmartEmailInput:1.0.0'
+}
+```
