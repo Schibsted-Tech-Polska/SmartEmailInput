@@ -8,7 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 import pl.schibsted.smartemailinput.R;
 import pl.schibsted.smartemailinput.SmartEmailInput;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SmartEmailInput.ActivityProvider {
 
     private SmartEmailInput emailInput;
 
@@ -18,17 +18,18 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         emailInput = (SmartEmailInput) findViewById(R.id.email_input);
-        emailInput.setActivityProvider(new SmartEmailInput.ActivityProvider() {
-            @Override
-            public Activity provideActivity() {
-                return MainActivity.this;
-            }
-        });
+        emailInput.setActivityProvider(this);
+        emailInput.setRationaleMessage("Grant necessary permission for autocomplete");
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         emailInput.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public Activity provideActivity() {
+        return this;
     }
 }

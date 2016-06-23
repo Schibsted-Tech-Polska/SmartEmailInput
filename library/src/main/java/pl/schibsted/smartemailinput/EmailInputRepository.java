@@ -3,6 +3,7 @@ package pl.schibsted.smartemailinput;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.content.Context;
+import android.preference.PreferenceManager;
 import android.util.Patterns;
 
 import java.util.ArrayList;
@@ -35,5 +36,15 @@ public class EmailInputRepository implements EmailInputMvp.Repository {
             }
         }
         return emailAccounts;
+    }
+
+    @Override
+    public void denyPermissionPermanently() {
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(PERMISSION_QUESTION_DISABLED, true).apply();
+    }
+
+    @Override
+    public boolean isPermissionDeniedPermanently() {
+        return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PERMISSION_QUESTION_DISABLED, false);
     }
 }

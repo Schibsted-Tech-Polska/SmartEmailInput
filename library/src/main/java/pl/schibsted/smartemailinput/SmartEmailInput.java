@@ -24,6 +24,8 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
 
     public interface ActivityProvider {
         Activity provideActivity();
+
+        boolean shouldShowRequestPermissionRationale(String permission);
     }
 
     private EmailInputMvp.Presenter presenter;
@@ -56,11 +58,13 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
         presenter = new EmailInputPresenter(this, EmailInputMvp.RepositoryProvider.provideRepository(getContext()));
 
         boolean permissionRequired = ContextCompat.checkSelfPermission(context, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED;
+
         List<EmailAccount> accounts = new ArrayList<>();
-        if (permissionRequired) {
+        boolean permissionDeniedPermanently = presenter.isPermissionDeniedPermanently();
+        if (permissionRequired && !permissionDeniedPermanently) {
             accounts.add(EmailAccount.rationaleDummy());
             setAdapter(new EmailAdapter(getContext(), presenter, this, accounts, permissionRequired));
-        } else {
+        } else if (!permissionDeniedPermanently) {
             presenter.loadAccounts();
         }
     }
@@ -74,7 +78,9 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case RequestCodes.GET_ACCOUNTS_PERMISSION: {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_DENIED && !activityProvider.shouldShowRequestPermissionRationale(Manifest.permission.GET_ACCOUNTS)) {
+                    presenter.denyPermissionPermanently();
+                } else if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     presenter.onAccountsPermissionGranted();
                 } else {
                     presenter.onPermissionDenied();
@@ -92,6 +98,11 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
     @Override
     public void onAccountsLoaded(List<EmailAccount> accounts) {
         setAdapter(new EmailAdapter(getContext(), presenter, this, accounts, false));
+    }
+
+    @Override
+    public void onPermissionDeniedPermanently() {
+        setAdapter(null);
     }
 
     @Override

@@ -36,4 +36,15 @@ public class EmailInputPresenter implements EmailInputMvp.Presenter {
         List<EmailAccount> accounts = repository.getAccounts();
         view.onAccountsLoaded(accounts);
     }
+
+    @Override
+    public void denyPermissionPermanently() {
+        repository.denyPermissionPermanently();
+        view.onPermissionDeniedPermanently();
+    }
+
+    @Override
+    public boolean isPermissionDeniedPermanently() {
+        return repository.isPermissionDeniedPermanently();
+    }
 }

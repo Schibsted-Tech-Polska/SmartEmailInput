@@ -33,6 +33,10 @@ public interface EmailInputMvp {
         void requestAccountsPermission();
 
         void loadAccounts();
+
+        void denyPermissionPermanently();
+
+        boolean isPermissionDeniedPermanently();
     }
 
     interface View {
@@ -43,10 +47,18 @@ public interface EmailInputMvp {
         void onPermissionDenied();
 
         void onAccountsLoaded(List<EmailAccount> accounts);
+
+        void onPermissionDeniedPermanently();
     }
 
     interface Repository {
+        String PERMISSION_QUESTION_DISABLED = "pl.schibsted.smartemailinput_permission_question_disabled";
+
         List<EmailAccount> getAccounts();
+
+        void denyPermissionPermanently();
+
+        boolean isPermissionDeniedPermanently();
     }
 
     interface RationaleProvider {
