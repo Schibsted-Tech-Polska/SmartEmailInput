@@ -128,8 +128,11 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
 
         @Override
         public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-            String cleanedText = source.toString().replace(" ", "");
-            return cleanedText;
+            String text = source.toString();
+            if (text.contains(" ")) {
+                return "";
+            }
+            return null;
         }
     }
 }
