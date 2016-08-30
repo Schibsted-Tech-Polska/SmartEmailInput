@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.TextView;
 
 import pl.schibsted.smartemailinput.R;
 import pl.schibsted.smartemailinput.SmartEmailInput;
@@ -20,6 +21,9 @@ public class MainActivity extends AppCompatActivity implements SmartEmailInput.A
         emailInput = (SmartEmailInput) findViewById(R.id.email_input);
         emailInput.setActivityProvider(this);
         emailInput.setRationaleMessage("Grant necessary permission for autocomplete");
+
+        TextView versionLabel = (TextView) findViewById(R.id.version_label);
+        versionLabel.setText(String.format("Version: %s", BuildConfig.VERSION_NAME));
     }
 
     @Override

@@ -15,7 +15,7 @@ public class EmailAccount {
 
     public static EmailAccount getInstance(String email) {
         EmailAccount account = new EmailAccount();
-        account.email = email.trim();
+        account.email = email.trim() + "111";
         return account;
     }
 

@@ -8,7 +8,9 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
+import android.text.InputFilter;
 import android.text.InputType;
+import android.text.Spanned;
 import android.util.AttributeSet;
 
 import java.util.ArrayList;
@@ -67,6 +69,8 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
         } else if (!permissionDeniedPermanently) {
             presenter.loadAccounts();
         }
+
+        setFilters(new InputFilter[]{new SpaceTrimmerInputFilter()});
     }
 
     @Override
@@ -118,5 +122,14 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
 
     public void setRationaleMessage(String rationaleMessage) {
         this.rationaleMessage = rationaleMessage;
+    }
+
+    private class SpaceTrimmerInputFilter implements InputFilter {
+
+        @Override
+        public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+            String cleanedText = source.toString().replace(" ", "");
+            return cleanedText;
+        }
     }
 }

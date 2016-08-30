@@ -20,6 +20,16 @@
         android:textAllCaps="true"
         android:textSize="18sp" />
 
+
+    <TextView
+        android:id="@+id/version_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="Version 1.0.4"
+        android:textAllCaps="true"
+        android:textSize="18sp" />
+
     <pl.schibsted.smartemailinput.SmartEmailInput
         android:id="@+id/email_input"
         android:layout_width="match_parent"
