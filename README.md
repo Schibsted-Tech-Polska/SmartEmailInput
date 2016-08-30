@@ -58,6 +58,6 @@ repositories {
 }
     
 dependencies {
-    compile 'com.github.Schibsted-Tech-Polska:SmartEmailInput:1.0.0'
+    compile 'com.github.Schibsted-Tech-Polska:SmartEmailInput:1.0.3'
 }
 ```
