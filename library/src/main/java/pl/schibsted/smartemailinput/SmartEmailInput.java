@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -58,16 +59,18 @@ public class SmartEmailInput extends AppCompatAutoCompleteTextView implements Em
         rationaleMessage = getContext().getString(R.string.permission_rationale);
 
         presenter = new EmailInputPresenter(this, EmailInputMvp.RepositoryProvider.provideRepository(getContext()));
+        if (Build.VERSION.SDK_INT < 26) {
+            //Autofill from Android 8 works better
+            boolean permissionRequired = ContextCompat.checkSelfPermission(context, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED;
 
-        boolean permissionRequired = ContextCompat.checkSelfPermission(context, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED;
-
-        List<EmailAccount> accounts = new ArrayList<>();
-        boolean permissionDeniedPermanently = presenter.isPermissionDeniedPermanently();
-        if (permissionRequired && !permissionDeniedPermanently) {
-            accounts.add(EmailAccount.rationaleDummy());
-            setAdapter(new EmailAdapter(getContext(), presenter, this, accounts, permissionRequired));
-        } else if (!permissionDeniedPermanently) {
-            presenter.loadAccounts();
+            List<EmailAccount> accounts = new ArrayList<>();
+            boolean permissionDeniedPermanently = presenter.isPermissionDeniedPermanently();
+            if (permissionRequired && !permissionDeniedPermanently) {
+                accounts.add(EmailAccount.rationaleDummy());
+                setAdapter(new EmailAdapter(getContext(), presenter, this, accounts, permissionRequired));
+            } else if (!permissionDeniedPermanently) {
+                presenter.loadAccounts();
+            }
         }
 
         setFilters(new InputFilter[]{new SpaceTrimmerInputFilter()});
